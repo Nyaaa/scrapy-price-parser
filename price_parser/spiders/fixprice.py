@@ -26,7 +26,6 @@ class MainSpider(scrapy.Spider):
                                  meta={"page": 1})
 
     def parse_links(self, response):
-        print(response.url, len(response.json()))
         for item in response.json():
             yield scrapy.Request(url=self.base_url + item.get('url'),
                                  headers=self.header,
@@ -80,6 +79,8 @@ class MainSpider(scrapy.Spider):
         new_item.add_value('assets', {'main_image': images[0], 'set_images': images})
 
         metadata = {'__description': json_response.get('description')}
+        if properties := json_response.get('properties'):
+            metadata |= {i.get('alias'): i.get('value') for i in properties}
         dimensions = json_response.get('variants')[0].get('dimensions')
         new_item.add_value('metadata', metadata | dimensions)
 
