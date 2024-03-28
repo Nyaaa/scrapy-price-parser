@@ -44,15 +44,15 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
+# SPIDER_MIDDLEWARES = {
 #    "price_parser.middlewares.PriceParserSpiderMiddleware": 543,
-#}
+# }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+# DOWNLOADER_MIDDLEWARES = {
 #    "price_parser.middlewares.PriceParserDownloaderMiddleware": 543,
-#}
+# }
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -92,16 +92,16 @@ REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 
 FEEDS = {
-    'output.json': {
-        'format': 'json',
-        'encoding': 'utf8',
-        'overwrite': True,
-        'store_empty': False,
-        'indent': 0,
-        'item_export_kwargs': {
-            'export_empty_fields': True,
+    "output.json": {
+        "format": "json",
+        "encoding": "utf8",
+        "overwrite": True,
+        "store_empty": False,
+        "indent": 0,
+        "item_export_kwargs": {
+            "export_empty_fields": True,
         },
     },
 }
 
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = "INFO"
