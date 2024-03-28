@@ -1,18 +1,12 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-from datetime import datetime
+from pathlib import Path
 
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+from scrapy.exporters import JsonItemExporter
 
 
-class FillTheBlanksPipeline:
-    @staticmethod
-    def process_item(item, spider):
-        adapter = ItemAdapter(item)
-
-        adapter['timestamp'] = datetime.now()
-
+class SaveJsonPipeline:
+    def process_item(self, item, spider):
+        folder = Path('data/')
+        folder.mkdir(parents=True, exist_ok=True)
+        filepath = folder / f'{item["RPC"]}.json'
+        JsonItemExporter(filepath.open('wb'), indent=2, encoding='utf-8').export_item(item)
         return item

@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlencode
+from datetime import datetime
 
 import scrapy
 
@@ -10,30 +10,34 @@ class MainSpider(scrapy.Spider):
     name = 'main'
     allowed_domains = ['fix-price.com']
     base_url = 'https://api.fix-price.com/buyer/v1/product/'
-    cookie = {"locality": '{"city":"Екатеринбург","cityId":55,"longitude":60.597474,"latitude":56.838011,"prefix":"г"}'}
+    categories_to_parse = [
+        'kosmetika-i-gigiena/ukhod-za-polostyu-rta',
+        'sad-i-ogorod/instrumenty-dlya-raboty-v-sadu',
+        'sad-i-ogorod/tovary-dlya-rassady-i-semena',
+    ]
+    header = {"x-city": 55}  # 55 = Екатеринбург
 
     def start_requests(self):
-        url = "https://api.fix-price.com/buyer/v1/product/in/kosmetika-i-gigiena/ukhod-za-polostyu-rta"
-        querystring = {"page": "1", "limit": "24", "sort": "abc"}
-
-        yield scrapy.Request(url=f'{url}?{urlencode(querystring)}',
-                             cookies=self.cookie,
-                             method="POST",
-                             callback=self.parse_links,
-                             meta={"page": 1})
+        for category in self.categories_to_parse:
+            yield scrapy.Request(url=f'{self.base_url}in/{category}?page=1',
+                                 headers=self.header,
+                                 method="POST",
+                                 callback=self.parse_links,
+                                 meta={"page": 1})
 
     def parse_links(self, response):
+        print(response.url, len(response.json()))
         for item in response.json():
             yield scrapy.Request(url=self.base_url + item.get('url'),
-                                 cookies=self.cookie,
+                                 headers=self.header,
                                  callback=self.parse_items,
                                  meta={"data": item})
 
         if response.json():
             curr_page = response.meta["page"]
-            page_url = re.sub(rf'page={curr_page}&', rf"page={curr_page + 1}&", response.url)
+            page_url = re.sub(rf'page={curr_page}', rf"page={curr_page + 1}", response.url)
             yield scrapy.Request(url=page_url,
-                                 cookies=self.cookie,
+                                 headers={"x-city": 55},
                                  method="POST",
                                  callback=self.parse_links,
                                  meta={"page": curr_page + 1})
@@ -47,6 +51,7 @@ class MainSpider(scrapy.Spider):
         new_item.add_value('RPC', json_response.get('id'))
         new_item.add_value('url', response.url)
         new_item.add_value('title', json_response.get('title'))
+        new_item.add_value('timestamp', datetime.now())
 
         if brand := json_response.get('brand'):
             brand = brand.get('title')

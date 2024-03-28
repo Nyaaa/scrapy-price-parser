@@ -25,5 +25,3 @@ class PriceItem(Item):
 
 class PriceLoader(ItemLoader):
     default_output_processor = TakeFirst()
-
-
