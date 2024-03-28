@@ -52,6 +52,8 @@ class MainSpider(scrapy.Spider):
             brand = brand.get('title')
         new_item.add_value('brand', brand)
 
+        new_item.add_value('section', extra_data.get('category').get('title'))
+
         orig_price = float(extra_data.get('price'))
         if curr := extra_data.get('specialPrice'):
             current_price = float(curr.get('price'))
@@ -68,5 +70,14 @@ class MainSpider(scrapy.Spider):
 
         stock = int(extra_data.get('inStock')) or 0
         new_item.add_value('stock', {'in_stock': stock > 0, 'count': stock})
+
+        images = [i.get('src') for i in json_response.get('images')]
+        new_item.add_value('assets', {'main_image': images[0], 'set_images': images})
+
+        metadata = {'__description': json_response.get('description')}
+        dimensions = json_response.get('variants')[0].get('dimensions')
+        new_item.add_value('metadata', metadata | dimensions)
+
+        new_item.add_value('variants', len(json_response.get('variants')))
 
         yield new_item.load_item()
